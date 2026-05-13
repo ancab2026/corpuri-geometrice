@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corpuri Geometrice — Clasa a IV-a</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:   #2563EB;
+    --blue-l: #EFF6FF;
+    --blue-d: #1E40AF;
+    --green:  #16A34A;
+    --green-l:#F0FDF4;
+    --red:    #DC2626;
+    --red-l:  #FEF2F2;
+    --orange: #EA580C;
+    --orange-l:#FFF7ED;
+    --purple: #7C3AED;
+    --purple-l:#F5F3FF;
+    --pink:   #DB2777;
+    --pink-l: #FDF2F8;
+    --sky:    #0284C7;
+    --bg:     #F8FAFF;
+    --card:   #FFFFFF;
+    --text:   #1E293B;
+    --muted:  #64748B;
+    --border: #E2E8F0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .hero {
+    background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 40%, #0EA5E9 100%);
+    padding: 2.5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.3rem 1rem;
+    border-radius: 999px;
+    margin-bottom: 0.85rem;
+  }
+  .hero h1 {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: #fff;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .hero p {
+    color: rgba(255,255,255,0.85);
+    font-size: 1rem;
+    font-weight: 600;
+    position: relative;
+  }
+  .hero-cs {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.45rem 1.1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    position: relative;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-wrap {
+    background: #fff;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .nav-tabs {
+    display: flex;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    gap: 0;
+  }
+  .nav-tab {
+    padding: 1rem 1.5rem;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--blue); }
+  .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .nav-tab .icon { font-size: 1.1rem; }
+
+  /* ── MAIN ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── BODY GRID ── */
+  .bodies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .body-card {
+    background: var(--card);
+    border: 2.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.2rem 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .body-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--accent, var(--blue));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .body-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: var(--accent, var(--blue)); }
+  .body-card:hover::before { opacity: 1; }
+  .body-card.selected { border-color: var(--accent, var(--blue)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, var(--blue)) 20%, transparent); }
+  .body-card.selected::before { opacity: 1; }
+  .body-card svg { display: block; margin: 0 auto 0.6rem; }
+  .body-card-name { font-size: 0.88rem; font-weight: 800; color: var(--text); margin-bottom: 0.2rem; }
+  .body-card-hint { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+
+  /* ── DETAIL PANEL ── */
+  .detail-panel {
+    background: var(--card);
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .detail-header {
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .detail-title-block h2 {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.3rem;
+  }
+  .detail-title-block p { font-size: 0.9rem; color: var(--muted); font-weight: 600; line-height: 1.5; }
+
+  .detail-body { padding: 1.5rem 2rem; }
+
+  .props-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .prop-box {
+    border-radius: 12px;
+    padding: 0.9rem 0.75rem;
+    text-align: center;
+  }
+  .prop-box .num {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .prop-box .lbl { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+  .prop-box .sub { font-size: 0.68rem; font-weight: 600; margin-top: 0.15rem; opacity: 0.7; }
+
+  .detail-section { margin-bottom: 1.25rem; }
+  .detail-section h3 {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .detail-section h3::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .examples-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: var(--chip-bg, #F1F5F9);
+    color: var(--chip-color, var(--text));
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--chip-border, var(--border));
+  }
+
+  .euler-box {
+    background: #FFFBEB;
+    border: 2px solid #FCD34D;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #92400E;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .euler-box .formula { font-family: 'Fredoka One', sans-serif; font-size: 1.1rem; color: #D97706; }
+  .euler-box .note { font-size: 0.8rem; font-weight: 600; color: #B45309; }
+
+  .tip-box {
+    background: #F0FDF4;
+    border: 2px solid #86EFAC;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #166534;
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  .tip-box::before { content: '💡'; font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── DESFĂȘURATE ── */
+  .net-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .net-card {
+    background: var(--card);
+    border: 2.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.1rem 0.75rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .net-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+  .net-card.selected { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+  .net-card svg { display: block; margin: 0 auto 0.5rem; }
+  .net-card-name { font-size: 0.85rem; font-weight: 800; color: var(--text); }
+
+  .net-detail {
+    background: var(--card);
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    padding: 1.75rem 2rem;
+    animation: slideIn 0.25s ease;
+  }
+  .net-detail h2 {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 1.5rem;
+    color: var(--blue-d);
+    margin-bottom: 0.4rem;
+  }
+  .net-detail .desc { font-size: 0.92rem; color: var(--muted); font-weight: 600; margin-bottom: 1.5rem; line-height: 1.5; }
+  .net-svg-wrap { display: flex; justify-content: center; margin: 1rem 0 1.5rem; }
+  .build-tip {
+    background: #FFF7ED;
+    border: 2px solid #FED7AA;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #9A3412;
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  .build-tip::before { content: '✂️'; font-size: 1rem; flex-shrink: 0; }
+
+  /* ── QUIZ ── */
+  .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .quiz-progress .bar {
+    flex: 1; height: 8px; background: var(--border);
+    border-radius: 999px; overflow: hidden;
+  }
+  .quiz-progress .fill {
+    height: 100%; background: var(--blue);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  .quiz-progress .count { font-size: 0.85rem; font-weight: 800; color: var(--muted); white-space: nowrap; }
+
+  .q-card {
+    background: var(--card);
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    padding: 1.75rem 2rem;
+    margin-bottom: 1rem;
+    animation: slideIn 0.2s ease;
+  }
+  .q-card .q-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.75rem; }
+  .q-card .q-text { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem; line-height: 1.5; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .opt {
+    background: #F8FAFF;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .opt:hover:not(:disabled) { background: var(--blue-l); border-color: var(--blue); color: var(--blue-d); transform: translateY(-1px); }
+  .opt.correct { background: #F0FDF4; border-color: var(--green); color: #14532D; }
+  .opt.wrong { background: var(--red-l); border-color: var(--red); color: #7F1D1D; }
+  .opt .opt-letter {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--border); display: flex; align-items: center;
+    justify-content: center; font-size: 0.72rem; font-weight: 800; flex-shrink: 0;
+  }
+  .opt.correct .opt-letter { background: var(--green); color: #fff; }
+  .opt.wrong .opt-letter { background: var(--red); color: #fff; }
+
+  .q-feedback {
+    margin-top: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: none;
+    animation: slideIn 0.2s ease;
+  }
+  .q-feedback.ok { display: flex; gap: 0.5rem; background: #F0FDF4; color: #166534; border: 2px solid #86EFAC; }
+  .q-feedback.bad { display: flex; gap: 0.5rem; background: var(--red-l); color: #7F1D1D; border: 2px solid #FECACA; }
+  .q-feedback::before { font-size: 1rem; flex-shrink: 0; }
+  .q-feedback.ok::before { content: '✅'; }
+  .q-feedback.bad::before { content: '❌'; }
+
+  .score-screen {
+    background: var(--card);
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+  .score-screen .trophy { font-size: 4rem; margin-bottom: 1rem; }
+  .score-screen .big { font-family: 'Fredoka One', sans-serif; font-size: 3.5rem; color: var(--blue); margin-bottom: 0.5rem; }
+  .score-screen .msg { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 1.75rem; }
+  .btn-restart {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.85rem 2rem;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-restart:hover { background: var(--blue-d); transform: translateY(-1px); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .props-row { grid-template-columns: repeat(2, 1fr); }
+    .opts { grid-template-columns: 1fr; }
+    .detail-header { flex-direction: column; text-align: center; }
+    .hero { padding: 1.75rem 1rem 2.5rem; }
+    .nav-tab span.label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Matematică · Clasa a IV-a · REA</div>
+  <h1>Corpuri Geometrice</h1>
+  <p>Explorează, descoperă desfășuratele și testează-ți cunoștințele!</p>
+  <div class="hero-cs">CS 3.1 — Recunoașterea și descrierea corpurilor geometrice în contexte variate</div>
+</div>
+
+<div class="nav-wrap">
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPanel('explorare', this)">
+      <span class="icon">🔍</span><span class="label">Explorare</span>
+    </button>
+    <button class="nav-tab" onclick="showPanel('desfasurate', this)">
+      <span class="icon">📐</span><span class="label">Desfășurate</span>
+    </button>
+    <button class="nav-tab" onclick="showPanel('exercitii', this)">
+      <span class="icon">✏️</span><span class="label">Exerciții</span>
+    </button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ══ EXPLORARE ══ -->
+  <div id="explorare" class="panel active">
+    <div class="bodies-grid" id="bodiesGrid"></div>
+    <div id="bodyDetail"></div>
+  </div>
+
+  <!-- ══ DESFĂȘURATE ══ -->
+  <div id="desfasurate" class="panel">
+    <div class="net-grid" id="netGrid"></div>
+    <div id="netDetail"></div>
+  </div>
+
+  <!-- ══ EXERCIȚII ══ -->
+  <div id="exercitii" class="panel">
+    <div class="quiz-progress">
+      <div class="bar"><div class="fill" id="qFill" style="width:0%"></div></div>
+      <div class="count" id="qCount">0 / 12</div>
+    </div>
+    <div id="quizArea"></div>
+  </div>
+
+</div>
+
+<script>
+const BODIES = [
+  {
+    id:'cub', name:'Cubul', hint:'6 fețe egale',
+    accent:'#2563EB', accentL:'#EFF6FF', accentD:'#1E40AF',
+    feturi:6, muchii:12, varfuri:8, euler:2,
+    desc:'Toate cele 6 fețe sunt pătrate și egale. Toate cele 12 muchii sunt egale. Este cel mai simetric poliedru.',
+    exemple:['Zaruri','Cutie cadou','Cuburi jucărie','Gheață cub','Rubik'],
+    fact:'La un cub, lungimea, lățimea și înălțimea sunt egale — de aceea toate fețele sunt la fel!',
+    svgBody:`<svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <polygon points="15,28 40,14 65,28 65,56 40,70 15,56" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+      <line x1="15" y1="28" x2="40" y2="42" stroke="#2563EB" stroke-width="2"/>
+      <line x1="65" y1="28" x2="40" y2="42" stroke="#2563EB" stroke-width="2"/>
+      <line x1="40" y1="70" x2="40" y2="42" stroke="#2563EB" stroke-width="2"/>
+      <line x1="40" y1="14" x2="40" y2="42" stroke="#2563EB" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <line x1="15" y1="56" x2="40" y2="42" stroke="#2563EB" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <line x1="65" y1="56" x2="40" y2="42" stroke="#2563EB" stroke-width="1.2" stroke-dasharray="4,3"/>
+    </svg>`,
+    netSvg: cubNet, netDesc:'6 pătrate egale dispuse în formă de cruce. Când le plici pe liniile marcate, obții cubul!'
+  },
+  {
+    id:'cuboid', name:'Cuboidul', hint:'6 fețe dreptunghiuri',
+    accent:'#16A34A', accentL:'#F0FDF4', accentD:'#14532D',
+    feturi:6, muchii:12, varfuri:8, euler:2,
+    desc:'6 fețe dreptunghiulare — fețele opuse sunt identice (3 perechi). Lungimea, lățimea și înălțimea pot fi diferite.',
+    exemple:['Cărți','Cutie de carton','Frigider','Cărămidă','Pachet suc'],
+    fact:'Cubul este un caz special de cuboid — atunci când toate cele 3 dimensiuni sunt egale!',
+    svgBody:`<svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <polygon points="8,30 8,58 50,58 50,30" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+      <polygon points="8,30 24,16 66,16 50,30" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+      <polygon points="50,30 66,16 66,44 50,58" fill="#BBF7D0" stroke="#16A34A" stroke-width="2"/>
+    </svg>`,
+    netSvg: cuboidNet, netDesc:'6 dreptunghiuri — 3 perechi de fețe identice. Observă că fețele opuse sunt colorate la fel.'
+  },
+  {
+    id:'sfera', name:'Sfera', hint:'fără fețe, muchii, vârfuri',
+    accent:'#DC2626', accentL:'#FEF2F2', accentD:'#7F1D1D',
+    feturi:0, muchii:0, varfuri:0, euler:null,
+    desc:'Complet rotundă — orice punct de pe suprafață este la aceeași distanță față de centru (raza). Nu are fețe plate, muchii sau vârfuri.',
+    exemple:['Minge fotbal','Glob pământesc','Portocală','Bilă','Balon'],
+    fact:'Sfera nu poate fi "desfăcută" fără să o distorsionezi — de aceea hărțile lumii arată deformat față de glob!',
+    svgBody:`<svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="28" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+      <ellipse cx="40" cy="40" rx="28" ry="10" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <path d="M40,12 Q53,40 40,68" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <path d="M40,12 Q27,40 40,68" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="4,3"/>
+    </svg>`,
+    netSvg: sphereNote, netDesc:'Sfera nu are o desfășurată plană — suprafața sa curbă nu poate fi "desfăcută" fără distorsiuni.'
+  },
+  {
+    id:'cilindru', name:'Cilindrul', hint:'2 baze cercuri',
+    accent:'#7C3AED', accentL:'#F5F3FF', accentD:'#4C1D95',
+    feturi:2, muchii:2, varfuri:0, euler:null,
+    desc:'2 baze circulare identice (sus și jos) + o suprafață laterală curbă. Are 2 muchii curbe și niciun vârf.',
+    exemple:['Conserve','Role de hârtie','Pahar','Creion','Borcan'],
+    fact:'Suprafața laterală a unui cilindru se desfășoară ca un dreptunghi — îl poți vedea dacă tai o conservă pe lungime!',
+    svgBody:`<svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <ellipse cx="40" cy="22" rx="22" ry="8" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+      <rect x="18" y="22" width="44" height="36" fill="#EDE9FE"/>
+      <line x1="18" y1="22" x2="18" y2="58" stroke="#7C3AED" stroke-width="2"/>
+      <line x1="62" y1="22" x2="62" y2="58" stroke="#7C3AED" stroke-width="2"/>
+      <ellipse cx="40" cy="58" rx="22" ry="8" fill="#DDD6FE" stroke="#7C3AED" stroke-width="2"/>
+    </svg>`,
+    netSvg: cylinderNet, netDesc:'2 cercuri (bazele) + un dreptunghi înfășurat (suprafața laterală). Latura dreptunghiului = 2πr.'
+  },
+  {
+    id:'con', name:'Conul', hint:'1 bază cerc + 1 vârf',
+    accent:'#EA580C', accentL:'#FFF7ED', accentD:'#7C2D12',
+    feturi:1, muchii:1, varfuri:1, euler:null,
+    desc:'1 bază circulară + o suprafață laterală curbă ce converge într-un singur vârf (apex). 1 muchie curbă.',
+    exemple:['Cornet înghețată','Pălărie carnaval','Brad','Con de brad','Con semnalizare'],
+    fact:'Conul este legat de cerc: dacă rotești un triunghi dreptunghic în jurul unui catete, obții un con!',
+    svgBody:`<svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <ellipse cx="40" cy="62" rx="25" ry="9" fill="#FFEDD5" stroke="#EA580C" stroke-width="2"/>
+      <line x1="15" y1="62" x2="40" y2="12" stroke="#EA580C" stroke-width="2"/>
+      <line x1="65" y1="62" x2="40" y2="12" stroke="#EA580C" stroke-width="2"/>
+      <path d="M15,62 Q40,54 65,62" fill="#FFEDD5" stroke="none"/>
+      <circle cx="40" cy="12" r="3" fill="#EA580C"/>
+    </svg>`,
+    netSvg: coneNet, netDesc:'1 cerc (baza) + 1 sector circular (suprafața laterală desfășurată). Sectorul se "înfășoară" în jurul cercului.'
+  },
+  {
+    id:'piramida', name:'Piramida', hint:'1 pătrat + 4 triunghiuri',
+    accent:'#DB2777', accentL:'#FDF2F8', accentD:'#831843',
+    feturi:5, muchii:8, varfuri:5, euler:2,
+    desc:'Baza este un pătrat. 4 fețe triunghiulare se ridică din laturile bazei și se unesc într-un singur vârf (apex).',
+    exemple:['Piramidele din Egipt','Acoperiș casă','Cort','Trofeu piramidal'],
+    fact:'Piramidele din Egipt au baza pătrată. Piramida cu baza triunghiulară se numește tetraedru!',
+    svgBody:`<svg width="72" height="72" viewBox="0 0 80 80" fill="none">
+      <polygon points="40,10 17,56 63,56" fill="#FCE7F3" stroke="#DB2777" stroke-width="2"/>
+      <polygon points="40,10 63,56 70,46" fill="#FBCFE8" stroke="#DB2777" stroke-width="2"/>
+      <line x1="40" y1="10" x2="17" y2="46" stroke="#DB2777" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <line x1="17" y1="46" x2="70" y2="46" stroke="#DB2777" stroke-width="1.2" stroke-dasharray="4,3"/>
+      <line x1="70" y1="46" x2="63" y2="56" stroke="#DB2777" stroke-width="2"/>
+      <line x1="17" y1="46" x2="17" y2="56" stroke="#DB2777" stroke-width="2"/>
+    </svg>`,
+    netSvg: pyramidNet, netDesc:'1 pătrat (baza) + 4 triunghiuri isoscel (fețele laterale). Triunghiurile se ridică din fiecare latură a bazei.'
+  }
+];
+
+const QUIZ = [
+  {q:'Câte fețe are un cub?', opts:['4','6','8','12'], ans:1, exp:'Cubul are 6 fețe — toate pătrate și egale.'},
+  {q:'Care corp seamănă cu o conservă de mazăre?', opts:['Cub','Cilindru','Con','Piramidă'], ans:1, exp:'Cilindrul are 2 baze circulare și suprafața laterală curbă, exact ca o conservă.'},
+  {q:'Câte vârfuri are un cuboid?', opts:['4','6','8','10'], ans:2, exp:'Cuboidul are 8 vârfuri — câte unul în fiecare colț.'},
+  {q:'Care corp geometric NU are niciun vârf?', opts:['Con','Cub','Sferă','Piramidă'], ans:2, exp:'Sfera nu are vârfuri, nici muchii, nici fețe plane — este perfect rotundă.'},
+  {q:'Câte muchii are o piramidă cu baza pătrată?', opts:['4','5','6','8'], ans:3, exp:'4 muchii ale bazei + 4 muchii laterale = 8 muchii în total.'},
+  {q:'Ce formă are desfășurata unui cilindru?', opts:['2 triunghiuri + dreptunghi','2 cercuri + dreptunghi','6 pătrate','1 cerc + triunghi'], ans:1, exp:'Cilindrul se desfășoară în 2 cercuri (bazele) și un dreptunghi (suprafața laterală).'},
+  {q:'Câte fețe are o piramidă cu baza pătrată?', opts:['4','5','6','8'], ans:1, exp:'1 față pătrată (baza) + 4 fețe triunghiulare = 5 fețe.'},
+  {q:'Care obiect are forma unui con?', opts:['Zaruri','Minge','Cornet de înghețată','Conservă'], ans:2, exp:'Cornetul de înghețată este un con — baza circulară se îngustează spre un vârf.'},
+  {q:'Sfera are muchii?', opts:['Da, 2 muchii curbe','Da, 4 muchii','Nu are nicio muchie','Da, 1 muchie'], ans:2, exp:'Sfera nu are nicio muchie — suprafața sa este complet curbă și uniformă.'},
+  {q:'Regula lui Euler (F+V−M=2) se aplică la:', opts:['Sferă și cilindru','Cub și piramidă','Con și cilindru','Toate corpurile'], ans:1, exp:'Euler se aplică poliedrelor (cub, cuboid, piramidă). Sfera, cilindrul și conul au suprafețe curbe.'},
+  {q:'Ce desfășurată corespunde cubului?', opts:['2 cercuri + dreptunghi','6 pătrate egale','1 pătrat + 4 triunghiuri','Sector circular + cerc'], ans:1, exp:'Cubul se desfășoară în 6 pătrate egale dispuse în formă de cruce.'},
+  {q:'Câte fețe plane are un cilindru?', opts:['0','1','2','4'], ans:2, exp:'Cilindrul are exact 2 fețe plane circulare (bazele). Suprafața laterală este curbă.'},
+];
+
+// ── SVG generatoare desfășurate ──
+function cubNet() {
+  return `<svg width="280" height="230" viewBox="0 0 280 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="95" y="10"  width="60" height="60" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+    <rect x="10" y="70"  width="60" height="60" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+    <rect x="95" y="70"  width="60" height="60" fill="#BFDBFE" stroke="#2563EB" stroke-width="2.5"/>
+    <rect x="180" y="70" width="60" height="60" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+    <rect x="95" y="130" width="60" height="60" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+    <rect x="95" y="190" width="60" height="60" fill="#DBEAFE" stroke="#2563EB" stroke-width="2"/>
+    <text x="125" y="45"  text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#1E40AF">sus</text>
+    <text x="40"  y="105" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#1E40AF">stg</text>
+    <text x="125" y="105" text-anchor="middle" font-family="Nunito" font-size="14" font-weight="800" fill="#1E3A8A">față</text>
+    <text x="210" y="105" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#1E40AF">dr</text>
+    <text x="125" y="165" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#1E40AF">spate</text>
+    <text x="125" y="225" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#1E40AF">jos</text>
+  </svg>`;
+}
+function cuboidNet() {
+  return `<svg width="300" height="230" viewBox="0 0 300 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="100" y="10"  width="80" height="50" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+    <rect x="10"  y="60"  width="90" height="80" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+    <rect x="100" y="60"  width="80" height="80" fill="#86EFAC" stroke="#16A34A" stroke-width="2.5"/>
+    <rect x="180" y="60"  width="90" height="80" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+    <rect x="100" y="140" width="80" height="50" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+    <rect x="100" y="190" width="80" height="50" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+    <text x="140" y="40"  text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#14532D">sus</text>
+    <text x="55"  y="105" text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#14532D">stânga</text>
+    <text x="140" y="105" text-anchor="middle" font-family="Nunito" font-size="14" font-weight="800" fill="#052E16">față</text>
+    <text x="225" y="105" text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#14532D">dreapta</text>
+    <text x="140" y="168" text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#14532D">spate</text>
+    <text x="140" y="218" text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#14532D">jos</text>
+  </svg>`;
+}
+function sphereNote() {
+  return `<svg width="280" height="180" viewBox="0 0 280 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="140" cy="85" r="60" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+    <ellipse cx="140" cy="85" rx="60" ry="20" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="5,4"/>
+    <path d="M140,25 Q165,85 140,145" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="5,4"/>
+    <path d="M140,25 Q115,85 140,145" fill="none" stroke="#DC2626" stroke-width="1.5" stroke-dasharray="5,4"/>
+    <text x="140" y="168" text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#991B1B">Suprafața curbă nu se poate desfășura!</text>
+  </svg>`;
+}
+function cylinderNet() {
+  return `<svg width="300" height="170" viewBox="0 0 300 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="55"  cy="85" rx="40" ry="40" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <rect x="105" y="25" width="130" height="120" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2" stroke-dasharray="5,3"/>
+    <ellipse cx="245" cy="85" rx="40" ry="40" fill="#EDE9FE" stroke="#7C3AED" stroke-width="2"/>
+    <text x="55"  y="89" text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#4C1D95">baza 1</text>
+    <text x="170" y="89" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#4C1D95">lateral</text>
+    <text x="245" y="89" text-anchor="middle" font-family="Nunito" font-size="12" font-weight="700" fill="#4C1D95">baza 2</text>
+    <text x="170" y="158" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="600" fill="#6D28D9">lungime = 2π × raza</text>
+  </svg>`;
+}
+function coneNet() {
+  return `<svg width="300" height="190" viewBox="0 0 300 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="65" cy="145" rx="52" ry="38" fill="#FFEDD5" stroke="#EA580C" stroke-width="2"/>
+    <text x="65" y="149" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#7C2D12">baza</text>
+    <path d="M165,10 L100,175 A100,100 0 0,0 230,175 Z" fill="#FFEDD5" stroke="#EA580C" stroke-width="2"/>
+    <text x="170" y="130" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="700" fill="#7C2D12">lateral</text>
+    <text x="170" y="148" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="600" fill="#9A3412">(sector circular)</text>
+  </svg>`;
+}
+function pyramidNet() {
+  return `<svg width="280" height="220" viewBox="0 0 280 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="95" y="75"  width="80" height="80" fill="#FCE7F3" stroke="#DB2777" stroke-width="2"/>
+    <polygon points="95,75 135,10 175,75"   fill="#FCE7F3" stroke="#DB2777" stroke-width="2"/>
+    <polygon points="95,75 30,115 95,155"   fill="#FCE7F3" stroke="#DB2777" stroke-width="2"/>
+    <polygon points="175,75 240,115 175,155" fill="#FCE7F3" stroke="#DB2777" stroke-width="2"/>
+    <polygon points="95,155 135,210 175,155" fill="#FCE7F3" stroke="#DB2777" stroke-width="2"/>
+    <text x="135" y="120" text-anchor="middle" font-family="Nunito" font-size="13" font-weight="800" fill="#831843">baza</text>
+    <text x="135" y="46"  text-anchor="middle" font-family="Nunito" font-size="11" font-weight="700" fill="#BE185D">față</text>
+    <text x="58"  y="118" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="700" fill="#BE185D">stg</text>
+    <text x="212" y="118" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="700" fill="#BE185D">dr</text>
+    <text x="135" y="200" text-anchor="middle" font-family="Nunito" font-size="11" font-weight="700" fill="#BE185D">spate</text>
+  </svg>`;
+}
+
+// ── STATE ──
+let selBody = null, selNet = null;
+let qAnswers = {}, qDone = false;
+
+// ── TABS ──
+function showPanel(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── CORPURI GRID ──
+function renderBodies() {
+  document.getElementById('bodiesGrid').innerHTML = BODIES.map(b => `
+    <div class="body-card${selBody===b.id?' selected':''}"
+         style="--accent:${b.accent}"
+         onclick="selectBody('${b.id}')">
+      ${b.svgBody}
+      <div class="body-card-name">${b.name}</div>
+      <div class="body-card-hint">${b.hint}</div>
+    </div>`).join('');
+}
+
+function selectBody(id) {
+  selBody = selBody === id ? null : id;
+  renderBodies();
+  const det = document.getElementById('bodyDetail');
+  if (!selBody) { det.innerHTML = ''; return; }
+  const b = BODIES.find(x => x.id === id);
+  const eulerHtml = b.euler
+    ? `<div class="euler-box">
+        <span class="formula">F + V − M = ${b.feturi} + ${b.varfuri} − ${b.muchii} = ${b.euler}</span>
+        <span class="note">Regula lui Euler este satisfăcută ✓</span>
+       </div>`
+    : `<div class="euler-box" style="background:#F0FDF4;border-color:#86EFAC;color:#166534">
+        <span class="formula" style="color:#16A34A">Euler nu se aplică</span>
+        <span class="note" style="color:#14532D">Corpul are suprafețe curbe</span>
+       </div>`;
+
+  const chips = b.exemple.map(e =>
+    `<span class="chip" style="--chip-bg:${b.accentL};--chip-color:${b.accentD};--chip-border:${b.accent}40">${e}</span>`
+  ).join('');
+
+  det.innerHTML = `
+    <div class="detail-panel">
+      <div class="detail-header" style="background:${b.accentL}">
+        ${b.svgBody.replace('width="72" height="72"','width="90" height="90"')}
+        <div class="detail-title-block">
+          <h2 style="color:${b.accent}">${b.name}</h2>
+          <p>${b.desc}</p>
+        </div>
+      </div>
+      <div class="detail-body">
+        <div class="props-row">
+          <div class="prop-box" style="background:${b.accentL}">
+            <div class="num" style="color:${b.accent}">${b.feturi}</div>
+            <div class="lbl" style="color:${b.accentD}">Fețe</div>
+            <div class="sub" style="color:${b.accentD}">suprafețe plane</div>
+          </div>
+          <div class="prop-box" style="background:${b.accentL}">
+            <div class="num" style="color:${b.accent}">${b.muchii}</div>
+            <div class="lbl" style="color:${b.accentD}">Muchii</div>
+            <div class="sub" style="color:${b.accentD}">linii de intersecție</div>
+          </div>
+          <div class="prop-box" style="background:${b.accentL}">
+            <div class="num" style="color:${b.accent}">${b.varfuri}</div>
+            <div class="lbl" style="color:${b.accentD}">Vârfuri</div>
+            <div class="sub" style="color:${b.accentD}">colțuri</div>
+          </div>
+          <div class="prop-box" style="background:#FFFBEB">
+            <div class="num" style="color:#D97706;font-size:1.2rem;padding-top:0.3rem">${b.euler ? 'F+V−M=2' : '—'}</div>
+            <div class="lbl" style="color:#92400E">Euler</div>
+            <div class="sub" style="color:#B45309">${b.euler ? 'poliedru' : 'supraf. curbă'}</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Exemple din viața de zi cu zi</h3>
+          <div class="examples-chips">${chips}</div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Regula lui Euler</h3>
+          ${eulerHtml}
+        </div>
+
+        <div class="tip-box">${b.fact}</div>
+      </div>
+    </div>`;
+
+  det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── DESFĂȘURATE ──
+function renderNets() {
+  document.getElementById('netGrid').innerHTML = BODIES.map(b => `
+    <div class="net-card${selNet===b.id?' selected':''}" onclick="selectNet('${b.id}')">
+      ${b.svgBody}
+      <div class="net-card-name">${b.name}</div>
+    </div>`).join('');
+}
+
+function selectNet(id) {
+  selNet = selNet === id ? null : id;
+  renderNets();
+  const det = document.getElementById('netDetail');
+  if (!selNet) { det.innerHTML = ''; return; }
+  const b = BODIES.find(x => x.id === id);
+  det.innerHTML = `
+    <div class="net-detail">
+      <h2>Desfășurata — ${b.name}</h2>
+      <div class="desc">${b.netDesc}</div>
+      <div class="net-svg-wrap">${b.netSvg()}</div>
+      <div class="build-tip">
+        Imprimă această pagină, decupează forma de mai sus de-a lungul liniilor continue, pliază pe liniile punctate și lipește — vei obține ${b.name.toLowerCase()}!
+      </div>
+    </div>`;
+  det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── QUIZ ──
+function renderQuiz() {
+  const total = QUIZ.length;
+  const answered = Object.keys(qAnswers).length;
+  document.getElementById('qFill').style.width = Math.round(answered / total * 100) + '%';
+  document.getElementById('qCount').textContent = answered + ' / ' + total;
+
+  if (qDone) {
+    const score = Object.values(qAnswers).filter(a => a.correct).length;
+    const pct = Math.round(score / total * 100);
+    const msgs = [
+      [80, '🏆', 'Excelent! Ești expert în corpuri geometrice!'],
+      [60, '⭐', 'Bine! Mai puțin de puțin și ești perfect!'],
+      [0, '📚', 'Recitește lecția și încearcă din nou!'],
+    ];
+    const [, trophy, msg] = msgs.find(([min]) => pct >= min);
+    document.getElementById('quizArea').innerHTML = `
+      <div class="score-screen">
+        <div class="trophy">${trophy}</div>
+        <div class="big">${score} / ${total}</div>
+        <div class="msg">${msg}</div>
+        <button class="btn-restart" onclick="resetQuiz()">Încearcă din nou</button>
+      </div>`;
+    return;
+  }
+
+  const letters = ['A', 'B', 'C', 'D'];
+  document.getElementById('quizArea').innerHTML = QUIZ.map((q, i) => {
+    const a = qAnswers[i];
+    return `<div class="q-card">
+      <div class="q-label">Întrebarea ${i + 1} din ${total}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="opts">${q.opts.map((o, j) => `
+        <button class="opt${a !== undefined ? (j === q.ans ? ' correct' : (j === a.idx ? ' wrong' : '')) : ''}"
+                onclick="answerQ(${i},${j})" ${a !== undefined ? 'disabled' : ''}>
+          <span class="opt-letter">${letters[j]}</span>${o}
+        </button>`).join('')}
+      </div>
+      ${a !== undefined ? `<div class="q-feedback ${a.correct ? 'ok' : 'bad'}">${a.correct ? 'Corect! ' : 'Greșit. '}${q.exp}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  if (Object.keys(qAnswers).length === total) {
+    qDone = true;
+    setTimeout(renderQuiz, 600);
+  }
+}
+
+function answerQ(qi, oi) {
+  if (qAnswers[qi] !== undefined) return;
+  qAnswers[qi] = { idx: oi, correct: oi === QUIZ[qi].ans };
+  renderQuiz();
+}
+
+function resetQuiz() {
+  qAnswers = {}; qDone = false; renderQuiz();
+}
+
+// ── INIT ──
+renderBodies();
+renderNets();
+renderQuiz();
+</script>
+</body>
+</html>
